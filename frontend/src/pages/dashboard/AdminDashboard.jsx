@@ -19,6 +19,10 @@ import {
   Assessment as AssessmentIcon,
   TrendingUp as TrendingIcon,
   Warning as WarningIcon,
+  Class as ClassIcon,
+  CalendarToday as CalendarToday,
+  AlertTitle,
+  AlertDescription,
 } from '@mui/icons-material'
 
 import { useSystemStats } from '../../hooks/useApi'

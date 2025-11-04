@@ -103,10 +103,6 @@ const StudentReports = () => {
     return { start, end }
   }
 
-  const handleDateRangeChange = (newDateRange) => {
-    setDateRange(newDateRange)
-  }
-
   const getStatusIcon = (percentage) => {
     if (percentage >= 75) {
       return <CheckCircle color="success" />

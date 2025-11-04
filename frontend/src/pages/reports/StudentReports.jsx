@@ -124,11 +124,7 @@ const StudentReports = () => {
     return 'F'
   }
 
-  const handleDateRangeChange = (newDateRange) => {
-    setDateRange(newDateRange)
-    setFilterStatus('all')
-  }
-
+  
   const getStatusMessage = (percentage) => {
     if (percentage >= 75) {
       return `🎉 Excellent attendance record!`

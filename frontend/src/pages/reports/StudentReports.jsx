@@ -161,12 +161,7 @@ const StudentReports = () => {
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Avatar sx={{ bgcolor: getGradeColor(attendanceStats.percentage) }}>
-                      <Avatar src="/path/to/avatar/student-avatar.png" />
-                    <Avatar sx={{ bgcolor: getGradeColor(attendanceStats.percentage) }}>
-                      <Avatar src="/path/to/avatar/student-avatar.png" />
-                      <Avatar sx={{ bgcolor: 'grey[500] }}>
-                      <Avatar sx={{ bgcolor: 'grey[700]' }}>
-                      <Avatar sx={{ bgcolor: 'red[500]' }} />
+                      {getAttendanceGrade(attendanceStats.percentage)}
                     </Avatar>
                   </Box>
                   <Typography variant="h4">

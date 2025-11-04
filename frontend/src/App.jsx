@@ -20,7 +20,7 @@ import AdminDashboard from './pages/dashboard/AdminDashboard'
 
 // Attendance pages
 import QRGenerator from './pages/attendance/QRGenerator'
-import QRScanner from './pages/attendance/QRScanner'
+import QRScanner from './components/QRScanner'
 import AttendanceHistory from './pages/attendance/AttendanceHistory'
 import AttendanceManagement from './pages/attendance/AttendanceManagement'
 

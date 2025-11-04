@@ -19,6 +19,7 @@ import {
   Assessment as AssessmentIcon,
   Warning as WarningIcon,
   CheckCircle as CheckCircleIcon,
+  Notifications as NotificationsIcon,
 } from '@mui/icons-material'
 
 import { useMyAttendance } from '../../hooks/useApi'

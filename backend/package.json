@@ -12,8 +12,9 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:e2e": "jest --config jest.e2e.config.js",
-    "db:seed": "node src/scripts/seed.js",
-    "db:migrate": "node src/scripts/migrate.js"
+    "db:seed": "node src/scripts/seedDatabase.js",
+    "db:generate-periods": "node src/scripts/generatePeriods.js",
+    "db:setup": "npm run db:seed && npm run db:generate-periods"
   },
   "keywords": ["attendance", "qr-code", "geofencing", "education", "nodejs"],
   "author": "SAMS Development Team",

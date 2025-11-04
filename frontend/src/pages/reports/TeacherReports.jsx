@@ -22,7 +22,7 @@ import { useCurrentPeriods } from '../../hooks/useApi'
 const TeacherReports = () => {
   const { data: teacherReports } = useTeacherReports()
   const { departments } = useDepartment()
-  const { departments } = useDepartments()
+  const { data: notifications } = useNotifications()
 
   const getTeacherStats = (departmentId) => {
     const dept = departments.find(dept => dept._id === departmentId)
@@ -30,28 +30,24 @@ const TeacherReports = () => {
       teacherCount: dept.teacherCount || 0,
       studentCount: dept.studentCount || 0,
       avgClassSize: dept.avgClassSize || 0,
-    }
-  } else {
-      { teacherCount: 0, studentCount: 0, avgClassSize: 0 }
+    } : {
+      teacherCount: 0,
+      studentCount: 0,
+      avgClassSize: 0
     }
   }
 
   const getDepartmentStats = () => {
-    const { departments } = useDepartments()
     return {
       totalDepartments: departments.length,
       activeDepartments: departments.filter(dept => dept.isActive).length,
-      totalStudents: departments.reduce((sum, dept) => sum(dept.studentCount || 0),
+      totalStudents: departments.reduce((sum, dept) => sum + (dept.studentCount || 0), 0)
     }
   }
 
   const getLowAttendanceStudents = () => {
-    const { data: teacherReports } = useTeacherReports({
-    const { data: lowAttendance } = useReports({
-      params: { limit: 50 },
-    })
     return {
-      students: data.lowAttendance?.students || []
+      students: teacherReports?.lowAttendance?.students || []
     }
   }
 

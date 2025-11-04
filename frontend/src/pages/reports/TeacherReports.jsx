@@ -59,8 +59,15 @@ const TeacherReports = () => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                {getDepartmentStats().activeDepartments} Active Departments ({ count: deptStats.activeDepartments })
-              </CardContent>
+                Department Overview
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {getDepartmentStats().activeDepartments} Active Departments
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Total Students: {getDepartmentStats().totalStudents}
+              </Typography>
+            </CardContent>
           </Card>
         </Grid>
 
@@ -71,9 +78,12 @@ const TeacherReports = () => {
               <Typography variant="h6" gutterBottom>
                 Teacher Statistics
               </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {getTeacherStats().totalClassesTaught} classes
-                </Typography>
+              <Typography variant="body2" color="text.secondary">
+ Total Classes Taught: {teacherReports?.totalClasses || 0}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Average Attendance: {teacherReports?.avgAttendance || 0}%
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -84,85 +94,14 @@ const TeacherReports = () => {
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Student Performance
-              </Typography variant="body2" color="text.secondary">
-                {getAttendanceStats().percentage}% average attendance rate
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Average Attendance Rate: {teacherReports?.avgStudentAttendance || 0}%
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Low Attendance Students: {getLowAttendanceStudents().students.length}
               </Typography>
             </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Quick Stats */}
-        <Grid item xs={12} sm={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Quick Stats
-              </Typography variant="body2" color="text.secondary">
-                {getAttendanceStats()}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Attendance Stats */}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Today's Performance
-              </Typography variant="body2" color="text.secondary">
-                {getAttendanceStats()}
-              </Typography variant="body2" color="text.secondary">
-                Present: {getAttendanceStats().present}/{getAttendanceStats().total}
-              </Typography variant="body2" color="text.secondary">
-                Absent: {getAttendanceStats().absent}/{getAttendanceStats().total}
-              </Typography variant="body2" color="text.secondary">
-                Present: {getAttendanceStats().present}/{getAttendanceStats().total}
-              </Typography variant="body2" color="text.secondary">
-                Late: {getAttendanceStats().late}/{getAttendanceStats().total}
-              </Typography variant="body2" color="text.secondary">
-                Absent: {getAttendanceStats().absent}/{getAttendanceStats().total}
-              </Typography variant="body2" color="text.secondary">
-                Present: {getAttendanceStats().present}/{getAttendanceStats().total}
-              </Typography variant="body2" color="text.secondary">
-                Late: {getAttendanceStats().late}/{getAttendanceStats().total}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Recent Activity */}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Recent Activity
-              </Typography variant="body2" color="text.secondary">
-                {getAttendanceStats()}
-              </Typography variant="body2" color="text.secondary">
-                {getAttendanceStats().total} classes attended this month
-              </Typography variant="body2" color="text.secondary">
-                {getAttendanceStats().percentage} average attendance rate
-              </Typography variant="body2" color="text.secondary">
-                This month: {getAttendanceStats().total} classes attended
-              </Typography variant="body" color="text.secondary">
-                {getAttendanceStats().percentage}% attendance rate this month
-              </Typography variant="body" color="text.secondary">
-                {getAttendanceStats().late}/{getAttendanceStats().total} classes absent
-              </Typography variant="body" color="text.secondary">
-                {getAttendanceStats().total} classes missed
-              </Typography variant="body" color="text.secondary">
-                {getAttendanceStats().percentage}% average attendance rate
-              </Typography variant="body" color="text-secondary">
-                {getAttendanceStats().percentage}% attendance rate this month
-              </Typography>
-            </Typography variant="body" color="text.secondary">
-                You have {getAttendanceStats().percentage}% average attendance for this month
-              </Typography>
-            </Typography variant="body" color="text-secondary">
-                You have good attendance
-              </Typography>
-            </Box>
           </Card>
         </Grid>
 
@@ -171,15 +110,14 @@ const TeacherReports = () => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Notifications
+                Recent Notifications
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 {notifications?.unreadCount || 0} unread notifications
               </Typography>
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
     </Box>
   )

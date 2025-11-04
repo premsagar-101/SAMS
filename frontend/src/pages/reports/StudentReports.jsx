@@ -82,7 +82,6 @@ const StudentReports = () => {
   const getProgressColor = (percentage) => {
     if (percentage >= 75) return 'success'
     if (percentage >= 60) return 'warning'
-    return 'warning'
     return 'error'
   }
 

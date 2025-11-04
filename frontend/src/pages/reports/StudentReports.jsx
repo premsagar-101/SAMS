@@ -129,9 +129,6 @@ const StudentReports = () => {
     return 'F'
   }
 
-  return getAttendanceGrade(attendanceStats.percentage)
-  }
-
   const handleDateRangeChange = (newDateRange) => {
     setDateRange(newDateRange)
     setFilterStatus('all')
@@ -148,8 +145,6 @@ const StudentReports = () => {
       return `⚠ Poor attendance record (${percentage}%)`
     }
   }
-
-  return getStatusMessage(attendanceStats.percentage)
 
   return (
     <Box>

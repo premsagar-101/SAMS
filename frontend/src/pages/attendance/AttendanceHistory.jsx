@@ -7,98 +7,53 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
+  TableHead,
   TableRow,
   Paper,
   Chip,
-  LinearProgress,
-  IconButton,
-  Tooltip,
+  CircularProgress,
+  Button,
 } from '@mui/material'
 import {
   History as HistoryIcon,
-  CalendarToday as CalendarIcon,
-  CheckCircle as CheckCircle,
+  CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
-  Person as PersonIcon,
-  Assessment as AssessmentIcon,
+  Error as ErrorIcon,
 } from '@mui/icons-material'
 
 import { useMyAttendance } from '../../hooks/useApi'
-import { useAttendance } from '../../hooks/useApi'
-import { useNotifications } from '../../hooks/useApi'
 
 const AttendanceHistory = () => {
-  const { data: attendance } = useMyAttendance({
-    params: { limit: 50, page: 1 }
+  const [page, setPage] = useState(1)
+  const { data: attendance, isLoading } = useMyAttendance({
+    params: { limit: 20, page }
   })
 
   const getAttendanceStats = () => {
-    if (!attendance || !attendance.attendance || !attendance.attendance) {
+    if (!attendance?.attendance) {
       return { total: 0, present: 0, absent: 0, late: 0, percentage: 0 }
     }
 
     const stats = attendance.attendance.reduce(
-      (acc, curr) => {
-        const status = curr.status || 'present'
+      (acc, record) => {
+        const status = record.status || 'present'
         return {
-          present: curr.status === 'present' ? 1 : 0,
-          absent: curr.status === 'absent' ? 1 : 0,
-          late: curr.status === 'late' ? 1 : 0,
+          total: acc.total + 1,
+          present: status === 'present' ? acc.present + 1 : acc.present,
+          absent: status === 'absent' ? acc.absent + 1 : acc.absent,
+          late: status === 'late' ? acc.late + 1 : acc.late,
         }
       },
-      { present: 0, absent: 0, late: 0 }
+      { total: 0, present: 0, absent: 0, late: 0 }
     )
 
-    const total = stats.present + stats.absent + stats.late
-    const percentage = total > 0 ? ((stats.present + stats.late) / total) * 100 : 0
+    const percentage = stats.total > 0 ? ((stats.present + stats.late) / stats.total) * 100 : 0
 
-    return { total, present, absent, late, percentage }
+    return { ...stats, percentage }
   }
 
-  const attendanceStats = getAttendanceStats()
-
-  const getAttendanceColor = (status) => {
-    switch (status) {
-      case 'present':
-        return 'success.main'
-      case 'late':
-        return 'warning.main'
-      case 'absent':
-        return 'error.main'
-      default:
-        return 'grey[500]'
-    }
-  }
-
-  const getAttendanceIcon = (status) => {
-    switch (status) {
-      case 'present':
-        return <CheckCircle color="success" />
-      case 'late':
-        return <WarningIcon color="warning" />
-      case 'absent':
-        return <WarningIcon color="error" />
-      default:
-        return <CheckCircle color="success" />
-    }
-  }
-
-  const formatDate = (date) => {
-    return new Date(date).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: '2-digit',
-      second: '2-digit',
-      second: '2-digit',
-      meridiem: '2-digit',
-      timeZone: 'short'
-    })
-  }
-
-  const getAttendanceStatusBadgeColor = (status) => {
+  const getStatusColor = (status) => {
     switch (status) {
       case 'present':
         return 'success'
@@ -111,94 +66,101 @@ const AttendanceHistory = () => {
     }
   }
 
-  return getAttendanceStatusBadgeColor(attendanceStats.percentage)
-
-  if (!attendance || attendance.attendance?.length === 0) {
-    return (
-        <Box sx={{ textAlign: 'center', py: 6 }}>
-          <Typography variant="h6">
-            No attendance records found
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Your attendance records will appear here once you start scanning QR codes.
-          </Typography>
-        </Box>
-      )
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'present':
+        return <CheckCircleIcon color="success" />
+      case 'late':
+        return <WarningIcon color="warning" />
+      case 'absent':
+        return <ErrorIcon color="error" />
+      default:
+        return <CheckCircleIcon color="success" />
     }
+  }
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+
+  const attendanceStats = getAttendanceStats()
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+        <CircularProgress />
+      </Box>
+    )
   }
 
   return (
     <Card>
       <CardContent>
-      <Typography variant="h5" gutterBottom>
-        Attendance History
-      </Typography>
+        <Typography variant="h5" gutterBottom>
+          Attendance History
+        </Typography>
 
-      {/* Stats Overview */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <CheckCircle color="success" sx={{ mr: 1 }} />
-            <Typography variant="h4">
-              {attendanceStats.percentage.toFixed(1)}%
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {attendanceStats.present} of {attendanceStats.total} classes attended
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
-            <Box sx={{ mr: 2 }}>
-              <Chip
-                color="success"
-                label="Present"
-                color="primary"
-              />
+        {/* Stats Overview */}
+        <Box sx={{ mb: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-around', mb: 2 }}>
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography variant="h4" color="primary">
+                {attendanceStats.percentage.toFixed(1)}%
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Attendance Rate
+              </Typography>
             </Box>
-            <Box sx={{ mr: 2 }}>
-              <Chip
-                color="warning"
-                label="Late"
-                color="warning"
-              />
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography variant="h4" color="success.main">
+                {attendanceStats.present}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Present
+              </Typography>
             </Box>
-            <Box sx={{ mr: 2 }}>
-              <Chip
-                color="error"
-                label="Absent"
-                color="error"
-              />
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography variant="h4" color="warning.main">
+                {attendanceStats.late}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Late
+              </Typography>
             </Box>
-            <Box sx={{ mr: 2 }}>
-              <Chip
-                color="info"
-                label="Total"
-                color="info"
-              />
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography variant="h4" color="error.main">
+                {attendanceStats.absent}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Absent
+              </Typography>
             </Box>
           </Box>
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              {attendanceStats.total} total attendance records
-            </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+            <Chip label={`Total: ${attendanceStats.total}`} color="info" size="small" />
           </Box>
         </Box>
 
-        {/* Attendance List */}
-        <Paper sx={{ height: 400, overflow: 'auto' }}>
-          <TableContainer component={Paper}>
+        {/* Attendance Table */}
+        {attendance?.attendance?.length > 0 ? (
+          <TableContainer component={Paper} sx={{ mb: 2 }}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>
-                  <TableCell>Date</TableCell>
+                  <TableCell>Date & Time</TableCell>
                   <TableCell>Subject</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>Time</TableCell>
+                  <TableCell>Location</TableCell>
                 </TableRow>
               </TableHead>
-              </TableHead>
               <TableBody>
-                {attendance?.attendance?.map((record) => (
+                {attendance.attendance.map((record) => (
                   <TableRow key={record._id}>
                     <TableCell>
                       <Typography variant="body2">
@@ -207,48 +169,56 @@ const AttendanceHistory = () => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2">
-                      {record.subject?.name}
+                        {record.subject?.name || 'Unknown Subject'}
+                      </Typography>
                     </TableCell>
                     <TableCell>
                       <Chip
-                        label={record.status}
-                        color={getAttendanceStatusColor(record.status)}
-                        icon={getAttendanceIcon(record.status)}
+                        label={record.status || 'present'}
+                        color={getStatusColor(record.status)}
+                        icon={getStatusIcon(record.status)}
                         size="small"
                       />
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2">
-                      {formatDate(record.scanTime)}
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">
-                        {record.teacher?.firstName} {record.teacher?.lastName}
+                        {record.location?.coordinates
+                          ? `Lat: ${record.location.coordinates[1].toFixed(4)}, Lng: ${record.location.coordinates[0].toFixed(4)}`
+                          : 'Location not recorded'
+                        }
                       </Typography>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
-            </TableContainer>
-          </Paper>
-
-          {/* Pagination */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 2 }}>
-            <Typography variant="caption" color="text.secondary">
-              Showing {attendance?.pagination?.page || 1} of {attendance?.pagination?.total || 0} records
+            </Table>
+          </TableContainer>
+        ) : (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <HistoryIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+            <Typography variant="h6" color="text.secondary">
+              No attendance records found
             </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Your attendance records will appear here once you start scanning QR codes.
+            </Typography>
+          </Box>
+        )}
+
+        {/* Load More Button */}
+        {attendance?.pagination?.hasNext && (
+          <Box sx={{ textAlign: 'center', mt: 2 }}>
             <Button
-              onClick={() => {
-              // Load more records
-            }}
-              disabled={!attendance?.pagination?.hasNext}
+              variant="outlined"
+              onClick={() => setPage(prev => prev + 1)}
+              disabled={isLoading}
             >
               Load More
             </Button>
           </Box>
-        </Card>
-      </Card>
-    </Box>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

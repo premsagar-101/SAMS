@@ -1,8 +1,8 @@
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth as useAuthContext } from '../contexts/AuthContext'
 
 // Custom hook for authentication
 export const useAuth = () => {
-  const auth = useAuth()
+  const auth = useAuthContext()
 
   // Helper functions
   const isStudent = () => auth.user?.role === 'student'

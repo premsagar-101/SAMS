@@ -124,7 +124,13 @@ const StudentReports = () => {
     return 'F'
   }
 
-  
+  const getGradeColor = (percentage) => {
+    if (percentage >= 75) return 'success.main'
+    if (percentage >= 60) return 'warning.main'
+    return 'error.main'
+  }
+
+
   const getStatusMessage = (percentage) => {
     if (percentage >= 75) {
       return `🎉 Excellent attendance record!`

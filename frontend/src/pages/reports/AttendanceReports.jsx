@@ -17,14 +17,13 @@ import {
   TableBody,
   TableCell,
   TableRow,
+  Chip,
 } from '@mui/material'
 import {
   TrendingUp as TrendingUpIcon,
-  People as PeopleIcon,
   Assessment as AssessmentIcon,
   CalendarToday as CalendarIcon,
   Download as DownloadIcon,
-  FilterList as FilterListIcon,
 } from '@mui/icons-material'
 
 import { useAttendanceSummary } from '../../hooks/useApi'
@@ -64,66 +63,9 @@ const AttendanceReports = () => {
     setFilters(prev => ({ ...prev, dateRange }))
   }
 
-  const handleSubjectFilter = (subject) => {
-    setFilters(prev => ({ ...prev, subject }))
-  }
-
-  const handleStatusFilter = (status) => {
-    setFilters(prev => ({ ...prev, status }))
-  }
-
-  const handleDepartmentFilter = (department) => {
-    setFilters(prev => ({ ...prev, department }))
-  }
-
-  const handleDateRangeChange = (dateRange) => {
-    setFilters(prev => ({ ...prev, dateRange }))
-  }
-
   const handleExport = async (format) => {
     // Implementation would export data in specified format
-    const data = await useNotifications()
-
-    switch (format) {
-      case 'pdf':
-        // Generate and download PDF
-        await api.get('/reports/attendance/export', {
-          params: {
-            format: 'pdf'
-          },
-          responseType: 'blob'
-        })
-        break
-      case 'excel':
-        await api.get('/reports/attendance/export', {
-          params: {
-            format: 'excel'
-          },
-          responseType: 'blob'
-        })
-        break
-      case 'csv':
-        await api.get('/reports/attendance/export', {
-          params: {
-            format: 'csv'
-          },
-          responseType: 'blob'
-        })
-        break
-      default:
-        throw new Error('Invalid export format')
-    }
-
-    // Create download link
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${format}Attendance-Report-${new Date().toISOString()}.${format}`
-    link.download = 'Attendance-Report.pdf'
-    link.click()
-  }
-
-    await data.toast.success('Report exported successfully!')
+    console.log(`Exporting as ${format}`)
   }
 
   const formatDateRange = (dateRange) => {
@@ -147,58 +89,29 @@ const AttendanceReports = () => {
     return { start, end }
   }
 
-  return (
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-      <Button
-        size="small"
-        variant="outlined"
-        startIcon={<DownloadIcon />}
-        onClick={() => handleDateRangeChange('7days')}
-        color={filters.dateRange === '7days' ? 'primary' : 'secondary'}
-      >
-        Last 7 Days
-      </Button>
-      <Button
-        size="small"
-        variant="outlined"
-        startIcon={<CalendarToday />}
-        onClick={() => handleDateRangeChange('30days')}
-        color={filters.dateRange === '30days' ? 'primary' : 'secondary'}
-      >
-        Last 30 Days
-      </Button>
-      <Button
-        size="small"
-        variant="outlined"
-        startIcon={<CalendarToday />}
-        onClick={() => handleDateRangeChange('90days')}
-        color={filters.dateRange === '90days' ? 'primary' : 'secondary'}
-      >
-        Last 90 Days
-      </Button>
-    </Box>
+  const getAttendanceStats = () => {
+    if (!attendanceSummary?.summary) {
+      return {
+        percentage: 0,
+        present: 0,
+        absent: 0,
+        late: 0,
+        total: 0,
+        subjectStats: []
+      }
+    }
 
-  return { start, end }
-  }
-
-  const exportReport = async (format) => {
-    await handleExport(format)
-  }
-
-  const handleFilterChange = (field, value) => {
-    switch (field) {
-      case 'status':
-        return handleStatusFilter(value)
-      case 'subject':
-        return handleSubjectFilter(value)
-      case 'department':
-        return handleDepartmentFilter(value)
-      case 'dateRange':
-        return handleDateRangeChange(value)
-      default:
-        console.error(`Unknown filter field: ${field}`)
+    return {
+      percentage: attendanceSummary.summary.attendancePercentage || 0,
+      present: attendanceSummary.summary.attendedPeriods || 0,
+      absent: attendanceSummary.summary.absentPeriods || 0,
+      late: attendanceSummary.summary.latePeriods || 0,
+      total: attendanceSummary.summary.totalPeriods || 0,
+      subjectStats: attendanceSummary.subjectBreakdown || []
     }
   }
+
+  const attendanceStats = getAttendanceStats()
 
   const tabs = [
     {
@@ -207,215 +120,249 @@ const AttendanceReports = () => {
       icon: <AssessmentIcon />,
     },
     {
-      <label: 'Subject-wise',
+      label: 'Subject-wise',
       value: 'subject-wise',
-      icon: <SchoolIcon />,
+      icon: <AssessmentIcon />,
     },
     {
       label: 'Daily View',
       value: 'daily',
-      icon: <CalendarToday />,
+      icon: <CalendarIcon />,
     },
     {
-      'label: 'Trend Analysis',
+      label: 'Trend Analysis',
       value: 'trends',
-      icon: <TrendingUp />
+      icon: <TrendingUpIcon />,
     },
     {
-      'label: 'Export',
+      label: 'Export',
       value: 'export',
       icon: <DownloadIcon />,
     },
   ]
 
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Attendance Reports
-        </Typography>
-        <Tabs
-          value={tabValue}
-          onChange={handleChangeTab}
-          sx={{
-            borderBottom: 1,
-            borderBottomColor: 'divider',
-          }}
-        >
-          {tabs.map((tab) => (
-            <TabPanel value={tab.value}>
-              {tab.icon && <Chip label={tab.label} color="primary" />}
-              <TabPanel value={tab.value}>
-                {tab.value === 'overview' && (
-                    <Box>
-                      <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
-                          <Card>
-                            <CardContent>
-                              <Typography variant="h6" gutterBottom>
-                                Attendance Overview
-                              </CardContent>
-                              <Box sx={{ mb: 2 }}>
-                                <Box sx={{ display: { display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', mb: 2 }}>
-                                  <Chip
-                                    label="Present"
-                                    color="success"
-                                    sx={{ mr: 1 }}
-                                  />
-                                  <Chip
-                                    label="Late"
-                                    color="warning"
-                                    sx={{ mr: 1 }}
-                                  />
-                                  <Chip
-                                    label="Absent"
-                                    color="error"
-                                    sx={{ mr: 1 }}
-                                  />
-                              </Box>
-                              <Box sx={{ mt: 2 }}>
-                                  <Typography variant="h6">
-                                {attendanceStats.percentage.toFixed(1)}%
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {attendanceStats.present} attended of {attendanceStats.total} classes
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {attendanceStats.absent} absent
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {attendanceStats.late} late
+    <Box>
+      <Card>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>
+            Attendance Reports
+          </Typography>
+
+          {/* Date Range Filter */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', mb: 3 }}>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<CalendarIcon />}
+              onClick={() => handleDateRangeChange('7days')}
+              color={filters.dateRange === '7days' ? 'primary' : 'secondary'}
+            >
+              Last 7 Days
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<CalendarIcon />}
+              onClick={() => handleDateRangeChange('30days')}
+              color={filters.dateRange === '30days' ? 'primary' : 'secondary'}
+            >
+              Last 30 Days
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<CalendarIcon />}
+              onClick={() => handleDateRangeChange('90days')}
+              color={filters.dateRange === '90days' ? 'primary' : 'secondary'}
+            >
+              Last 90 Days
+            </Button>
+          </Box>
+
+          <TabContext value={tabValue}>
+            <Box sx={{ borderBottom: 1, borderBottomColor: 'divider' }}>
+              {tabs.map((tab) => (
+                <Tab
+                  key={tab.value}
+                  label={tab.label}
+                  value={tab.value}
+                  icon={tab.icon}
+                  onClick={() => handleChangeTab(null, tab.value)}
+                />
+              ))}
+            </Box>
+
+            <TabPanel value="overview">
+              <Box>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                          Attendance Overview
+                        </Typography>
+                        <Box sx={{ mb: 2 }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', mb: 2 }}>
+                            <Chip
+                              label="Present"
+                              color="success"
+                              sx={{ mr: 1 }}
+                            />
+                            <Chip
+                              label="Late"
+                              color="warning"
+                              sx={{ mr: 1 }}
+                            />
+                            <Chip
+                              label="Absent"
+                              color="error"
+                              sx={{ mr: 1 }}
+                            />
+                          </Box>
+                        </Box>
+                        <Box sx={{ mt: 2 }}>
+                          <Typography variant="h6">
+                            {attendanceStats.percentage.toFixed(1)}%
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {attendanceStats.present} attended of {attendanceStats.total} classes
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {attendanceStats.absent} absent
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {attendanceStats.late} late
+                          </Typography>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6">
+                          Subject-wise Attendance
+                        </Typography>
+                        <Box sx={{ mt: 2 }}>
+                          {attendanceStats.subjectStats.map((stat, index) => (
+                            <Box key={index} sx={{ mb: 1 }}>
+                              <Typography variant="body2">
+                                {stat.subject} - {stat.percentage}% attendance
+                                ({stat.present}/{stat.total} attended)
                               </Typography>
                             </Box>
-                          </Grid>
-                          <Grid item xs={12} md={6}>
-                            <Card>
-                              <CardContent>
-                                <Typography variant="h6">
-                                  Subject-wise Attendance
-                                </Typography>
-                                <Box sx={{ mt: 2 }}>
-                                  {attendanceStats.subjectStats.map((stat) => (
-                                    <Box sx={{ mb: 1 }}>
-                                      <Typography variant="body2">
-                                        {stat.name} - {stat.percentage}% attendance
-                                      ({stat.present}/{stat.total} attended)
-                                      ({stat.present + stat.late}/{stat.total} late})
-                                    </Typography>
-                                    </Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                                  <Typography variant="caption" color="text.secondary">
-                                      Attendance by Subject
-                                  </Typography>
-                                  <Typography variant="body2" color="text.secondary">
-                                      Total: {attendanceStats.total} records
-                                  </Typography>
-                                </Box>
-                              </Card>
-                            </Grid>
-                          </Grid>
-                        </Box>
-                      </Box>
-                    </TabPanel>
-                    <TabPanel value={'subject-wise'}>
-                      <Box>
-                        <Typography variant="h6">
-                          Subject-wise Attendance Overview
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" paragraph>
-                          View detailed attendance breakdown by subject
-                        </Typography>
-
-                        {/* Subject-wise Statistics */}
-                        {attendanceStats.subjectStats?.map((stat, index) => (
-                          <Box key={index} sx={{ mb: 3, p: 2, border: '1px solid #e0e0' }}>
-                            <Typography variant="h6">
-                              {stat.name}
+                          ))}
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                            <Typography variant="caption" color="text.secondary">
+                              Attendance by Subject
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              <Typography variant="caption">
-                                {stat.percentage}% attendance ({stat.present}/{stat.total} students)
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {stat.present}/{stat.total} present ({stat.present + stat.late}/{stat.total})
-                                ({stat.absent}/{stat.total} absent)
-                              ({stat.late}/{stat.total} late)
-                              </Typography>
-                              <Typography variant="caption">
-                                Enrolled Students: {stat.enrolled} students
-                              </Typography>
-                              <Typography variant="caption">
-                                Total Classes: {stat.total} classes
-                              </Typography>
-                            </Box>
+                              Total: {attendanceStats.total} records
+                            </Typography>
+                          </Box>
                         </Box>
-                      ))}
-                    </Box>
-                  </TabPanel>
-                  <TabPanel value={'daily'}>
-                    <Box>
-                      <Typography variant="h6">
-                        Daily Attendance Overview
-                      </Typography>
-                      <Typography variant="body2" color="attendanceReports">
-                        View daily attendance records and trends
-                      </Typography>
-                    </Box>
-                  </TabPanel>
-                  <TabPanel value={'trends'}>
-                    <Box>
-                      <Typography variant="h6">
-                        Attendance Trends
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        View attendance trends over time
-                      </Typography>
-                    </Box>
-                  </TabPanel>
-                  <TabPanel value={'export'}>
-                    <Box>
-                      <Typography variant="h6">
-                      Export Reports
-                    </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Export attendance data in multiple formats
-                    </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+              </Box>
+            </TabPanel>
 
-                      {/* Export Options */}
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                        <Button
-                          variant="outlined"
-                          startIcon={<DownloadIcon />}
-                          onClick={() => exportReport('csv')}
-                          sx={{ mr: 1 }}
-                        >
-                          Export as CSV
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          startIcon={<DownloadIcon />}
-                          onClick={() => exportReport('pdf')}
-                          sx={{ mr: 1 }}
-                        >
-                          Export as PDF
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          startIcon={<DownloadIcon />}
-                          onClick={() => exportReport('excel')}
-                          sx={{ mr: 1 }}
-                        >
-                          Export as Excel
-                        </Button>
-                      </Box>
-                    </Box>
-                  </TabPanel>
-                </Tabs>
-              </CardContent>
-            </Card>
-          </Card>
-        </Card>
-      </Box>
+            <TabPanel value="subject-wise">
+              <Box>
+                <Typography variant="h6">
+                  Subject-wise Attendance Overview
+                </Typography>
+                <Typography variant="body2" color="text.secondary" paragraph>
+                  View detailed attendance breakdown by subject
+                </Typography>
+
+                {/* Subject-wise Statistics */}
+                {attendanceStats.subjectStats?.map((stat, index) => (
+                  <Box key={index} sx={{ mb: 3, p: 2, border: '1px solid #e0e0e0' }}>
+                    <Typography variant="h6">
+                      {stat.subject}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      <Typography variant="caption" display="block">
+                        {stat.percentage}% attendance ({stat.present}/{stat.total} students)
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {stat.present}/{stat.total} present ({stat.present + stat.late}/{stat.total})
+                      </Typography>
+                      <Typography variant="caption" display="block">
+                        Enrolled Students: {stat.enrolled || 0} students
+                      </Typography>
+                      <Typography variant="caption" display="block">
+                        Total Classes: {stat.total} classes
+                      </Typography>
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </TabPanel>
+
+            <TabPanel value="daily">
+              <Box>
+                <Typography variant="h6">
+                  Daily Attendance Overview
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  View daily attendance records and trends
+                </Typography>
+              </Box>
+            </TabPanel>
+
+            <TabPanel value="trends">
+              <Box>
+                <Typography variant="h6">
+                  Attendance Trends
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  View attendance trends over time
+                </Typography>
+              </Box>
+            </TabPanel>
+
+            <TabPanel value="export">
+              <Box>
+                <Typography variant="h6" gutterBottom>
+                  Export Reports
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Export attendance data in multiple formats
+                </Typography>
+
+                {/* Export Options */}
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<DownloadIcon />}
+                    onClick={() => handleExport('csv')}
+                  >
+                    Export as CSV
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<DownloadIcon />}
+                    onClick={() => handleExport('pdf')}
+                  >
+                    Export as PDF
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<DownloadIcon />}
+                    onClick={() => handleExport('excel')}
+                  >
+                    Export as Excel
+                  </Button>
+                </Box>
+              </Box>
+            </TabPanel>
+          </TabContext>
+        </CardContent>
+      </Card>
     </Box>
   )
 }

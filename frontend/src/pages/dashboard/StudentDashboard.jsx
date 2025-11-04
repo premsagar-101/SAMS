@@ -25,7 +25,7 @@ import {
 import { useMyAttendance } from '../../hooks/useApi'
 import { useCurrentPeriods } from '../../hooks/useApi'
 import { useNotifications } from '../../hooks/useApi'
-import QRScanner from '../attendance/QRScanner'
+import QRScanner from '../../components/QRScanner'
 import AttendanceHistory from '../attendance/AttendanceHistory'
 
 const StudentDashboard = () => {

@@ -38,7 +38,7 @@ import TeacherReports from './pages/reports/TeacherReports'
 // Profile and settings
 import Profile from './pages/profile/Profile'
 import Settings from './pages/settings/SettingsPage'
-import Notifications from './pages/notifications/Notifications'
+import Notifications from './pages/notifications/NotificationsPage'
 
 // Not found page
 import NotFound from './pages/NotFound'

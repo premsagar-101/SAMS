@@ -228,7 +228,8 @@ const StudentReports = () => {
                       {notifications.slice(0, 5).map((notification, index) => (
                         <ListItem key={index}>
                           <ListItemIcon>
-                            <Notifications />
+                            <NotificationsIcon />
+                          </ListItemIcon>
                           <ListItemText
                             <Typography variant="body2">
                               {notification.title}

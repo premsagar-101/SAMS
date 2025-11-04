@@ -123,4 +123,4 @@ const TeacherReports = () => {
   )
 }
 
-export default StudentReports
+export default TeacherReports
